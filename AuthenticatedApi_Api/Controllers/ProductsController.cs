@@ -24,4 +24,12 @@ namespace AuthenticatedApi_Api
             _userManager = userManager;
         }
     }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+    {
+        var products = await _context.Products.ToListAsync();
+
+        return products;
+    }
 }
