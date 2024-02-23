@@ -58,5 +58,42 @@ namespace AuthenticatedApi_Api
                 return NotFound();
             }
         }
+
+        [HttpPost("AddItem")]
+        public async Task<ActionResult> AddItemToCart([FromBody] int productId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var shoppingCart = await _context.ShoppingCarts
+                .Include(cart => cart.Products)
+                .FirstOrDefaultAsync(cart => cart.UserId == currentUser.Id);
+
+            if (shoppingCart == null)
+            {
+                shoppingCart = new ShoppingCart
+                {
+                    UserId = currentUser.Id,
+                    User = currentUser.Email
+                };
+                _context.ShoppingCarts.Add(shoppingCart);
+            }
+
+            var productToAdd = await _context.Products.FindAsync(productId);
+            if (productToAdd == null)
+            {
+                return NotFound("Product not found.");
+            }
+
+            var existingProduct = shoppingCart.Products.FirstOrDefault(p => p.Id == productId);
+            if (existingProduct != null)
+            {
+                return BadRequest("Product already exists in the shopping cart.");
+            }
+
+            shoppingCart.Products.Add(productToAdd);
+            await _context.SaveChangesAsync();
+
+            return Ok("Product added to the shopping cart successfully.");
+        }
     }
 }
