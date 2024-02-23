@@ -1,28 +1,22 @@
-using IdentityAPI.Data;
-using IdentityAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using AuthenticatedApi_Library;
 
-namespace AuthenticatedApi_Api
+namespace AuthenticatedApi_Api;
+[Authorize]
+[ApiController]
+[Route("[controller]")]
+public class ProductsController : ControllerBase
 {
-    [Authorize]
-    [ApiController]
-    [Route("[controller]")]
-    public class ProductsController : ControllerBase
-    {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
+    private readonly AppDataContext _context;
+    private readonly UserManager<AppUser> _userManager;
 
-        public ProductsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+    public ProductsController(AppDataContext context, UserManager<AppUser> userManager)
+    {
+        _context = context;
+        _userManager = userManager;
     }
 
     [HttpGet]
@@ -36,8 +30,9 @@ namespace AuthenticatedApi_Api
     [HttpGet("ByCategory/{categoryId}")]
     public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(int categoryId)
     {
+        var category = new Category { Id = categoryId, Description = String.Empty };
         var productsInCategory = await _context.Products
-            .Where(p => p.CategoryId == categoryId)
+            .Where(p => p.ProductCategory == category)
             .ToListAsync();
 
         return productsInCategory;
@@ -48,5 +43,6 @@ namespace AuthenticatedApi_Api
     {
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
+        return Ok();
     }
 }
