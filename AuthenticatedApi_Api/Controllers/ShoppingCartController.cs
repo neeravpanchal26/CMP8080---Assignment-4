@@ -12,7 +12,7 @@ namespace AuthenticatedApi_Api
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("[ShoppingCartController]")]
     public class ShoppingCartController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
