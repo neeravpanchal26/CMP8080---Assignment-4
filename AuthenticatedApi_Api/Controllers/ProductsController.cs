@@ -42,4 +42,11 @@ namespace AuthenticatedApi_Api
 
         return productsInCategory;
     }
+
+    [HttpPost]
+    public async Task<ActionResult<Product>> CreateProduct([FromBody] Product product)
+    {
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+    }
 }
