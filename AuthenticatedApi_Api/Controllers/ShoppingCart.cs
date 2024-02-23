@@ -35,5 +35,28 @@ namespace AuthenticatedApi_Api
 
             return Ok(shoppingCart.Products);
         }
+
+        [HttpPost("RemoveItem")]
+        public async Task<ActionResult> RemoveItemFromCart([FromBody] int productId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+
+            var shoppingCart = await _context.ShoppingCarts
+                .Include(cart => cart.Products)
+                .FirstOrDefaultAsync(cart => cart.UserId == currentUser.Id);
+
+            var productToRemove = shoppingCart.Products.FirstOrDefault(p => p.Id == productId);
+
+            if (productToRemove != null)
+            {
+                shoppingCart.Products.Remove(productToRemove);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }
