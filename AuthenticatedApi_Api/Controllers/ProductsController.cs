@@ -12,7 +12,7 @@ namespace AuthenticatedApi_Api
 {
     [Authorize]
     [ApiController]
-    [Route("[ProductsController]")]
+    [Route("[controller]")]
     public class ProductsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -31,5 +31,15 @@ namespace AuthenticatedApi_Api
         var products = await _context.Products.ToListAsync();
 
         return products;
+    }
+
+    [HttpGet("ByCategory/{categoryId}")]
+    public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(int categoryId)
+    {
+        var productsInCategory = await _context.Products
+            .Where(p => p.CategoryId == categoryId)
+            .ToListAsync();
+
+        return productsInCategory;
     }
 }
